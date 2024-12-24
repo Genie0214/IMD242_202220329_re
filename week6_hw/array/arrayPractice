@@ -1,0 +1,123 @@
+// 3페이지에 걸쳐 데이터의 갯수, 합, 평균을 순서대로 표기한다
+
+int currentPage = 0;  // 현재 페이지를 저장하는 변수
+
+// 과일 데이터 배열
+String[] fruits = {"mango", "strawberry", "kiwi", "plum", "blueberry"};
+int[] fixedQuantities = {41, 69, 103, 25, 144};  // 과일의 고정 개수
+int totalFruits = 384;  // 과일의 총합 (고정)
+
+// 과일 색상 배열
+color[] colors = {
+  color(248, 158, 79),
+  color(236, 1, 90),
+  color(141, 98, 44),
+  color(146, 83, 161),
+  color(11, 106, 136)
+};
+
+void setup() {
+  size(1280, 720);  // 초기 화면 크기 설정
+  textAlign(CENTER, CENTER);
+}
+
+void draw() {
+  background(0);  // 검정 배경
+
+  // 상단 마진을 줄이고 전체적으로 위로 올리기
+  float topMargin = height * 0.05;
+  float bottomMargin = height * 0.2;
+  float availableHeight = height - topMargin - bottomMargin;
+
+  if (currentPage == 0) {
+    drawPage(fruits, fixedQuantities, availableHeight, topMargin);  // 첫 번째 페이지(갯수)
+    drawFruitInventory(availableHeight, topMargin);  // 텍스트
+  } else if (currentPage == 1) {
+    drawPage(fruits, fixedQuantities, availableHeight, topMargin);  // 두 번째 페이지(합계)
+    drawTotalText(availableHeight, topMargin);
+  } else if (currentPage == 2) {
+    drawPage(fruits, fixedQuantities, availableHeight, topMargin);  // 세 번째 페이지(평균)
+    drawAverageText(availableHeight, topMargin);
+  }
+
+  // 하단 정보
+  drawFooter(bottomMargin);
+}
+
+// 첫 번째 페이지 그리기
+void drawPage(String[] fruits, int[] quantities, float availableHeight, float topMargin) {
+  float barWidth = width * 0.03;  // 막대의 너비
+  float barHeight = availableHeight * 0.5;  // 막대의 높이
+  float verticalGap = availableHeight * 0.1;  // 막대와 텍스트 간의 더 넓은 세로 간격
+
+  // 과일 데이터 시각화
+  for (int i = 0; i < fruits.length; i++) {
+    // 과일 수량 = n/384
+    float percentage = (float)quantities[i] / totalFruits;
+
+    // 외곽선 막대
+    float filledBarHeight = percentage * barHeight;  // 채워진 막대 높이 (과일 수량에 비례)
+    float x = map(i, 0, fruits.length - 1, width * 0.15, width * 0.85);  // 고른 가로 간격
+
+    // 총합 영역
+    noFill();
+    stroke(colors[i]);  // 외곽선 색을 각 과일의 색상에 맞게 설정
+    strokeWeight(3);
+    rect(x - barWidth / 2, topMargin + verticalGap, barWidth, barHeight, 6);
+
+    // 갯수 영역
+    fill(colors[i]);
+    noStroke();
+    rect(x - barWidth / 2, topMargin + verticalGap + (barHeight - filledBarHeight), barWidth, filledBarHeight, 0, 0, 6, 6);  // 아래쪽 모서리만 라운드 적용
+
+    // 과일 이름 및 수량 표시
+    fill(colors[i]);  // 과일 색상 -> 텍스트 색상
+    textSize(min(width, height) * 0.02 + 10);
+    text(fruits[i] + "\nqty: " + quantities[i], x, topMargin + barHeight + verticalGap * 2);  // 그래프 아래 텍스트 배치
+  }
+}
+
+// 첫 번째 페이지 - 제목
+void drawFruitInventory(float availableHeight, float topMargin) {
+  fill(255);
+  textSize(min(width, height) * 0.04 + 6);
+  text("Fruit Inventory", width / 2, topMargin + availableHeight * 0.95);
+}
+
+// 두 번째 페이지 - 합계
+void drawTotalText(float availableHeight, float topMargin) {
+  fill(255);
+  textSize(min(width, height) * 0.04 + 6);
+  text("Total Fruit Inventory: " + totalFruits, width / 2, topMargin + availableHeight * 0.95);
+}
+
+// 세 번째 페이지 - 평균
+void drawAverageText(float availableHeight, float topMargin) {
+  int average = totalFruits / 5; // 평균 계산
+  fill(255);
+  textSize(min(width, height) * 0.04 + 6);
+  text("Average Number of Fruits: " + average, width / 2, topMargin + availableHeight * 0.95);
+}
+
+// 하단 정보
+void drawFooter(float bottomMargin) {
+  fill(255);
+  textSize(18);
+
+  // 하단 정보는 동일한 중앙 정렬 사용
+  float footerY = height - bottomMargin / 2;  // 하단 정보의 Y 위치
+
+  // FRUIT INVENTORY (좌)
+  text("FRUIT INVENTORY", width * 0.2, footerY);  // 중앙 정렬에 맞게 좌표 설정
+
+  // CTRL+ALT+DEL (중앙)
+  text("CTRL+ALT+DEL", width * 0.5, footerY);  // 중앙에 위치
+
+  // EST. 2001 (우)
+  text("EST. 2001", width * 0.8, footerY);  // 우측 중앙에 위치
+}
+
+// 마우스를 클릭 -> 페이지 전환
+void mousePressed() {
+  currentPage = (currentPage + 1) % 3;  // 페이지를 3개까지 순환
+}
